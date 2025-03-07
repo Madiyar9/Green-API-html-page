@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тестирование GREEN-API</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+</head>
+<body class="bg-gray-200 p-6">
+    <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-6">
+        <h1 class="text-3xl font-semibold mb-4 text-center">Тестирование GREEN-API</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">ID инстанса</label>
+                <input id="idInstance" type="text" placeholder="Введите idInstance" class="w-full p-2 mb-3 border rounded">
+                
+                <label class="block text-sm font-medium text-gray-700">API Токен</label>
+                <input id="apiTokenInstance" type="text" placeholder="Введите ApiTokenInstance" class="w-full p-2 mb-3 border rounded">
+                
+                <button onclick="getSettings()" class="w-full bg-blue-600 text-white py-2 rounded mb-2 hover:bg-blue-700">Получить настройки</button>
+                <button onclick="getStateInstance()" class="w-full bg-blue-600 text-white py-2 rounded mb-4 hover:bg-blue-700">Проверить статус</button>
+                
+                <label class="block text-sm font-medium text-gray-700">Номер телефона</label>
+                <input id="phoneNumber" type="text" placeholder="Пример: 77771234567" class="w-full p-2 mb-3 border rounded">
+                
+                <label class="block text-sm font-medium text-gray-700">Сообщение</label>
+                <input id="message" type="text" placeholder="Введите текст сообщения" class="w-full p-2 mb-3 border rounded">
+                
+                <button onclick="sendMessage()" class="w-full bg-green-600 text-white py-2 rounded mb-4 hover:bg-green-700">Отправить сообщение</button>
+                
+                <label class="block text-sm font-medium text-gray-700">Ссылка на файл</label>
+                <input id="fileUrl" type="text" placeholder="Введите URL файла" class="w-full p-2 mb-3 border rounded">
+                
+                <button onclick="sendFileByUrl()" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">Отправить файл</button>
+            </div>
+            <div>
+                <h2 class="text-xl font-semibold mb-2">Ответ API:</h2>
+                <pre id="response" class="bg-gray-100 p-4 border rounded h-64 overflow-y-auto text-sm"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function getSettings() {
+            const idInstance = document.getElementById('idInstance').value;
+            const apiToken = document.getElementById('apiTokenInstance').value;
+            try {
+                const response = await fetch(`https://api.green-api.com/waInstance${idInstance}/getSettings/${apiToken}`);
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                document.getElementById('response').textContent = JSON.stringify(await response.json(), null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function getStateInstance() {
+            const idInstance = document.getElementById('idInstance').value;
+            const apiToken = document.getElementById('apiTokenInstance').value;
+            try {
+                const response = await fetch(`https://api.green-api.com/waInstance${idInstance}/getStateInstance/${apiToken}`);
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                document.getElementById('response').textContent = JSON.stringify(await response.json(), null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function sendMessage() {
+            const idInstance = document.getElementById('idInstance').value;
+            const apiToken = document.getElementById('apiTokenInstance').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const message = document.getElementById('message').value;
+            try {
+                const response = await fetch(`https://api.green-api.com/waInstance${idInstance}/sendMessage/${apiToken}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chatId: `${phoneNumber}@c.us`, message })
+                });
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                document.getElementById('response').textContent = JSON.stringify(await response.json(), null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+
+        async function sendFileByUrl() {
+            const idInstance = document.getElementById('idInstance').value;
+            const apiToken = document.getElementById('apiTokenInstance').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const fileUrl = document.getElementById('fileUrl').value;
+            try {
+                const response = await fetch(`https://api.green-api.com/waInstance${idInstance}/sendFileByUrl/${apiToken}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chatId: `${phoneNumber}@c.us`, urlFile: fileUrl, fileName: fileUrl.split('/').pop(), caption: 'Файл' })
+                });
+                if (!response.ok) throw new Error(`Ошибка HTTP: ${response.status}`);
+                document.getElementById('response').textContent = JSON.stringify(await response.json(), null, 2);
+            } catch (error) {
+                document.getElementById('response').textContent = `Ошибка: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
